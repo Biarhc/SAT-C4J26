@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#071426">
+  <meta name="description" content="AtmosSat: painel de monitoramento ambiental com ESP32.">
+  <title>AtmosSat — Monitoramento Ambiental</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="AtmosSat início">
+      <span class="brand-mark"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M18 15 9 6l-4 4 9 9M30 33l9 9 4-4-9-9M15 30 7 38l3 3 8-8M33 18l8-8-3-3-8 8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><rect x="15" y="15" width="18" height="18" rx="5" transform="rotate(-15 24 24)" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="24" cy="24" r="3" fill="currentColor"/></svg></span>
+      <span><strong>Atmos<span>Sat</span></strong><small>MONITORAMENTO AMBIENTAL</small></span>
+    </a>
+    <div class="top-actions">
+      <div class="connection"><span class="status-dot" id="statusDot"></span><span id="connectionText">Modo demonstração</span></div>
+      <button class="icon-button" id="themeToggle" aria-label="Alternar tema" title="Alternar tema">☼</button>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="hero">
+      <div>
+        <div class="eyebrow"><span class="eyebrow-line"></span> ESTAÇÃO ATMOSFÉRICA <span class="mono">/ 01</span></div>
+        <h1>O céu, em <span>dados.</span></h1>
+        <p class="hero-copy">Acompanhe as condições ambientais captadas pela estação ESP32 em um só lugar.</p>
+        <div class="hero-meta">
+          <span class="live-pill"><span class="pulse"></span><span id="modeLabel">DEMO AO VIVO</span></span>
+          <span class="muted">Última leitura: <b id="lastUpdated">--:--:--</b></span>
+        </div>
+      </div>
+      <div class="orbit-art" aria-hidden="true">
+        <div class="orbit orbit-a"></div><div class="orbit orbit-b"></div><div class="orbit orbit-c"></div>
+        <div class="planet"><div class="planet-shine"></div><div class="planet-ring"></div></div>
+        <span class="orbit-label label-top">ATM / 01</span><span class="orbit-label label-bottom">SENSOR NODE</span>
+        <span class="star star-a">✦</span><span class="star star-b">·</span><span class="star star-c">✧</span>
+      </div>
+    </section>
+
+    <section class="section-heading">
+      <div><span class="section-kicker">VISÃO GERAL</span><h2>Condições atuais</h2></div>
+      <div class="data-source"><span class="source-dot"></span><span id="sourceLabel">Dados simulados para demonstração</span></div>
+    </section>
+
+    <section class="metrics-grid" aria-label="Medições ambientais">
+      <article class="metric-card temperature">
+        <div class="metric-top"><span class="metric-icon">☼</span><span class="metric-tag">SENSOR 01</span><span class="metric-arrow">↗</span></div>
+        <p class="metric-label">Temperatura</p>
+        <div class="metric-value"><span id="temperature">26.8</span><small>°C</small></div>
+        <p class="metric-description" id="temperatureDesc">Condição amena</p>
+        <div class="mini-chart"><svg viewBox="0 0 240 45" preserveAspectRatio="none"><path class="spark-fill" d="M0 37 C20 35 25 24 43 28 S72 36 91 21 S120 28 143 15 S175 24 194 11 S222 17 240 5 L240 45 L0 45Z"/><path class="spark-line" d="M0 37 C20 35 25 24 43 28 S72 36 91 21 S120 28 143 15 S175 24 194 11 S222 17 240 5"/></svg></div>
+      </article>
+      <article class="metric-card humidity">
+        <div class="metric-top"><span class="metric-icon">◌</span><span class="metric-tag">SENSOR 02</span><span class="metric-arrow">↗</span></div>
+        <p class="metric-label">Umidade relativa</p>
+        <div class="metric-value"><span id="humidity">64</span><small>%</small></div>
+        <p class="metric-description" id="humidityDesc">Umidade moderada</p>
+        <div class="progress-track"><span id="humidityBar" style="width:64%"></span></div>
+        <div class="scale-labels"><span>0%</span><span>100%</span></div>
+      </article>
+      <article class="metric-card pressure">
+        <div class="metric-top"><span class="metric-icon">⌁</span><span class="metric-tag">SENSOR 03</span><span class="metric-arrow">↘</span></div>
+        <p class="metric-label">Pressão atmosférica</p>
+        <div class="metric-value"><span id="pressure">1013.2</span><small>hPa</small></div>
+        <p class="metric-description" id="pressureDesc">Pressão próxima ao padrão</p>
+        <div class="pressure-scale"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      </article>
+      <article class="metric-card air">
+        <div class="metric-top"><span class="metric-icon">≋</span><span class="metric-tag">SENSOR 04</span><span class="air-status" id="airStatus">DEMO</span></div>
+        <p class="metric-label">Qualidade do ar</p>
+        <div class="metric-value"><span id="airValue">18</span><small id="airUnit">µg/m³</small></div>
+        <p class="metric-description" id="airDesc">Partículas finas · valor demonstrativo</p>
+        <div class="air-scale"><span></span><span></span><span></span><span></span><span></span></div>
+      </article>
+      <article class="metric-card rain">
+        <div class="metric-top"><span class="metric-icon">☂</span><span class="metric-tag">PREVISÃO</span><span class="metric-arrow">↗</span></div>
+        <p class="metric-label">Probabilidade de chuva</p>
+        <div class="metric-value"><span id="rainChance">35</span><small>%</small></div>
+        <p class="metric-description" id="rainDesc">Previsão externa de demonstração</p>
+        <div class="rain-bottom"><div class="rain-track"><span id="rainBar" style="width:35%"></span></div><span class="rain-cloud">☁</span></div>
+      </article>
+    </section>
+
+    <section class="lower-grid">
+      <article class="panel history-panel">
+        <div class="panel-heading">
+          <div><span class="section-kicker">LEITURAS AO LONGO DO TEMPO</span><h2>Histórico ambiental</h2></div>
+          <div class="range-switch" role="group" aria-label="Período do gráfico">
+            <button class="range-btn active" data-range="30">30 min</button><button class="range-btn" data-range="360">6 h</button><button class="range-btn" data-range="1440">24 h</button>
+          </div>
+        </div>
+        <div class="chart-legend"><span><i class="legend-dot temp-dot"></i>Temperatura (°C)</span><span><i class="legend-dot hum-dot"></i>Umidade (%)</span></div>
+        <div class="chart-wrap"><canvas id="historyChart" aria-label="Gráfico de temperatura e umidade ao longo do tempo"></canvas></div>
+        <p class="chart-note">Histórico ilustrativo no modo demonstração. Leituras reais serão exibidas após configurar a fonte de dados.</p>
+      </article>
+
+      <aside class="panel station-panel">
+        <div class="panel-heading"><div><span class="section-kicker">DISPOSITIVO</span><h2>Estação ESP32</h2></div><span class="device-icon">⌁</span></div>
+        <div class="device-visual"><div class="device-chip"><span>ESP</span><b>32</b><i></i></div><div class="device-wave wave-one"></div><div class="device-wave wave-two"></div><div class="device-wave wave-three"></div></div>
+        <div class="device-info">
+          <div><span>Identificação</span><b>atmosat-esp32-01</b></div>
+          <div><span>Conexão</span><b class="demo-text" id="deviceConnection">Modo demonstração</b></div>
+          <div><span>Intervalo de leitura</span><b id="intervalText">5 segundos (simulado)</b></div>
+          <div><span>Último pacote</span><b class="mono" id="packetTime">--:--:--</b></div>
+        </div>
+        <div class="device-actions"><button class="secondary-button" id="connectBtn">Configurar conexão</button><button class="text-button" id="demoBtn">Usar demonstração ↗</button></div>
+      </aside>
+    </section>
+
+    <section class="alerts-section">
+      <div class="section-heading alert-heading"><div><span class="section-kicker">ACOMPANHAMENTO</span><h2>Alertas do sistema</h2></div><span class="alert-count"><span class="source-dot"></span><span id="alertSummary">Nenhum alerta crítico</span></span></div>
+      <div class="alert-card"><span class="alert-icon">i</span><div><b id="alertTitle">Modo de demonstração ativo</b><p id="alertMessage">Os valores apresentados são ilustrativos e não representam medições ambientais reais.</p></div><span class="alert-time" id="alertTime">AGORA</span></div>
+    </section>
+
+    <footer><a class="footer-brand" href="#">AtmosSat<span> · </span></a><span>Monitoramento ambiental com ESP32</span><span class="footer-right">DADOS · ATMOSFERA · TECNOLOGIA</span></footer>
+  </main>
+
+  <dialog id="configDialog" class="config-dialog">
+    <form method="dialog" id="configForm">
+      <div class="dialog-top"><div><span class="section-kicker">INTEGRAÇÃO</span><h2>Conectar ao ESP32</h2></div><button class="icon-button close-dialog" value="cancel" aria-label="Fechar">×</button></div>
+      <p class="dialog-copy">Informe um endpoint HTTP que retorne o JSON da estação. O dispositivo ou servidor precisa estar acessível pelo navegador e permitir CORS.</p>
+      <label for="endpointInput">URL do endpoint</label>
+      <input id="endpointInput" type="url" placeholder="http://192.168.1.50/data" autocomplete="url">
+      <label for="refreshInput">Intervalo de atualização</label>
+      <select id="refreshInput"><option value="3000">3 segundos</option><option value="5000" selected>5 segundos</option><option value="10000">10 segundos</option><option value="30000">30 segundos</option></select>
+      <div class="dialog-hint">Exemplo de resposta: <code>{"temperature_c": 25.4, "humidity_percent": 60, "pressure_hpa": 1012}</code></div>
+      <p class="form-error" id="formError" role="status"></p>
+      <div class="dialog-actions"><button type="button" class="secondary-button" id="testConnectionBtn">Testar conexão</button><button type="submit" class="primary-button" id="saveConnectionBtn">Salvar e conectar</button></div>
+    </form>
+  </dialog>
+
+  <script src="js/config.js"></script><script src="js/charts.js"></script><script src="js/app.js"></script>
+</body>
+</html>
